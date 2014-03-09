@@ -1,0 +1,209 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <conio.h>
+
+// needed for GetTickCount below
+#include <windows.h>
+
+char word1[] = {'b', 'e', 'a', 'n', 'b', 'a', 'g'};
+char word2[] = {'s', 'p', 'e', 'a', 'k', 'e', 'r'};
+char word3[] = {'p', 'r', 'i', 'n', 't', 'e', 'r'};    
+char word4[] = {'o', 'p', 'e', 'n', 'i', 'n', 'g'};
+char word5[] = {'l', 'e', 't', 't', 'e', 'r', 's'};
+
+
+int main (int argc, char *argv[])
+{
+	// seed the random number generator with a value based on the current time in milliseconds
+	srand (GetTickCount ());
+
+	while (1)
+	{
+		int option = 0;
+
+		printf ("1: Play a game\n");
+		printf ("0: Exit\n");
+		printf ("Select an option: ");
+
+		// loop until a key is hit, then read the key and store it out
+		while (1)
+		{
+			if (kbhit ())
+			{
+				option = getche ();
+				printf ("\n");
+				break;
+			}
+		}
+
+		// and let's see what we got
+		if (option == '0')
+		{
+			// just break out of the main loop
+			printf ("Thanks for playing, bye.\n");
+			break;
+		}
+		else if (option == '1')
+		{
+			// play the game
+			char *thisword;
+			char blanks[] = {'*', '*', '*', '*', '*', '*', '*'};
+
+			// stores the wrong guesses made so far; because there can never be more than 6 wrong guesses this size is safe
+			// we add 1 for a little bit of extra room
+			char wrongs[7];
+
+			int dead = 0;	// number of wrong guesses made so far
+			int live = 0;
+
+			// randomly select the word to use for this run of the program
+			switch (rand () % 5)
+			{
+			case 0:
+				thisword = word1;
+				break;
+
+			case 1:
+				thisword = word2;
+				break;
+
+			case 2:
+				thisword = word3;
+				break;
+
+			case 3:
+				thisword = word4;
+				break;
+
+			case 4:
+				thisword = word5;
+				break;
+			}
+
+			// go into an infinite loop while the player is guessing letters
+			while (1)
+			{
+				int i;
+				char playerguess;
+				int gotit = 0;
+
+				// show them what they've currently guessed
+				printf ("word: ");
+
+				for (i = 0; i < 7; i++)
+				{
+					printf ("%c", blanks[i]);
+				}
+
+				printf ("\n\n");
+				printf ("right guesses: %d  wrong guesses: %d\n", live, dead);
+
+				// if there are no wrong guesses yet then don't display them
+				if (dead > 0)
+				{
+					printf ("wrong guesses = ");
+
+					for (i = 0; i < dead; i++)
+						printf ("%c", wrongs[i]);
+
+					printf ("\n");
+				}
+
+				printf ("enter a letter: ");
+
+				// loop until a key is hit, then read the key and store it out
+				while (1)
+				{
+					if (kbhit ())
+					{
+						playerguess = getche ();
+						printf ("\n");
+						break;
+					}
+				}
+
+				if ((playerguess >= 'a' && playerguess <= 'z') ||
+					(playerguess >= 'A' && playerguess <= 'Z') ||
+					(playerguess >= '0' && playerguess <= '9'))
+				{
+					// this is a valid entry - do nothing - this will just jump down to the next part of the code
+				}
+				else
+				{
+					// and this is not
+					continue;
+				}
+
+				// find if this letter is in the word
+				for (i = 0; i < 7; i++)
+				{
+					if (thisword[i] == playerguess)
+					{
+						blanks[i] = thisword[i];
+						gotit = 1;
+					}
+				}
+
+				// did we get one of them
+				if (gotit)
+				{
+					// yes
+					live++;
+				}
+				else
+				{
+					// no - take away one of the players lives
+					wrongs[dead] = playerguess;
+					dead++;
+				}
+
+				// if all guesses are used up the player has failed; drop them back to the main menu
+				if (dead == 6)
+				{
+					printf ("you're dead\nword was:");
+
+					for (i = 0; i < 7; i++)
+					{
+						printf ("%c", thisword[i]);
+					}
+
+					printf ("\n");
+
+					break;
+				}
+
+				for (i = 0; i < 7; i++)
+				{
+					// if any one of the letters are not equal then we don't have the whole word yet
+					if (thisword[i] != blanks[i])
+						break;
+				}
+
+				// if the loop completed without any of the letters being not equal, then we do have the whole word
+				if (i == 7)
+				{
+					printf ("YOU GOT IT! : ");
+
+					for (i = 0; i < 7; i++)
+					{
+						printf ("%c", blanks[i]);
+					}
+
+					printf ("\nDamn it, you're a genius!\n\n");
+					break;
+				}
+			}
+		}
+		else
+		{
+			// 0 and 1 are the only valid options
+			printf ("invalid option!!!!\n");
+		}
+	}
+
+	return 1;
+}
+
+
+
+
